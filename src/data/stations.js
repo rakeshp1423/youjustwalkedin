@@ -1,4 +1,8 @@
 const stations = {
+  // ============================================================
+  // 01 — BUS WALE BHAIYA
+  // ============================================================
+
   busWaleBhaiya: {
     id: "busWaleBhaiya",
     name: "Bus Wale Bhaiya",
@@ -54,6 +58,11 @@ const stations = {
     ],
   },
 
+
+  // ============================================================
+  // 02 — MOHALLE KI CHAI
+  // ============================================================
+
   mohallaKiChai: {
     id: "mohallaKiChai",
     name: "Mohalle Ki Chai",
@@ -73,10 +82,46 @@ const stations = {
       "/backgrounds/mohalla-ki-chai/placeholder.jpg",
 
     video:
-      "/backgrounds/mohalla-ki-chai/placeholder.mp4",
+      "/backgrounds/mohalla-ki-chai/chaitapri.mp4",
 
-    songs: [],
+    songs: [
+      {
+        id: 1,
+        title: "Song 01",
+        artist: "Unknown",
+        src: "/music/mohalla-ki-chai/song-01.mp3",
+      },
+      {
+        id: 2,
+        title: "Song 02",
+        artist: "Unknown",
+        src: "/music/mohalla-ki-chai/song-02.mp3",
+      },
+      {
+        id: 3,
+        title: "Song 03",
+        artist: "Unknown",
+        src: "/music/mohalla-ki-chai/song-03.mp3",
+      },
+      {
+        id: 4,
+        title: "Song 04",
+        artist: "Unknown",
+        src: "/music/mohalla-ki-chai/song-04.mp3",
+      },
+      {
+        id: 5,
+        title: "Song 05",
+        artist: "Unknown",
+        src: "/music/mohalla-ki-chai/song-05.mp3",
+      },
+    ],
   },
+
+
+  // ============================================================
+  // 03 — RAILWAY PLATFORM
+  // ============================================================
 
   railwayPlatform: {
     id: "railwayPlatform",
@@ -97,16 +142,53 @@ const stations = {
       "/backgrounds/railway-platform/placeholder.jpg",
 
     video:
-      "/backgrounds/railway-platform/placeholder.mp4",
+      "/backgrounds/railway-platform/railstation.mp4",
 
-    songs: [],
+    songs: [
+      {
+        id: 1,
+        title: "Song 01",
+        artist: "Unknown",
+        src: "/music/railway-platform/song-01.mp3",
+      },
+      {
+        id: 2,
+        title: "Song 02",
+        artist: "Unknown",
+        src: "/music/railway-platform/song-02.mp3",
+      },
+      {
+        id: 3,
+        title: "Song 03",
+        artist: "Unknown",
+        src: "/music/railway-platform/song-03.mp3",
+      },
+      {
+        id: 4,
+        title: "Song 04",
+        artist: "Unknown",
+        src: "/music/railway-platform/song-04.mp3",
+      },
+      {
+        id: 5,
+        title: "Song 05",
+        artist: "Unknown",
+        src: "/music/railway-platform/song-05.mp3",
+      },
+    ],
   },
+
+
+  // ============================================================
+  // 04 — BARBER SHOP
+  // ============================================================
 
   barberShop: {
     id: "barberShop",
     name: "Barber Shop",
 
-    shortDescription: "The fan has been making that noise all morning.",
+    shortDescription:
+      "The fan has been making that noise all morning.",
 
     story: [
       "Someone is waiting for their turn.",
@@ -121,10 +203,46 @@ const stations = {
       "/backgrounds/barber-shop/placeholder.jpg",
 
     video:
-      "/backgrounds/barber-shop/placeholder.mp4",
+      "/backgrounds/barber-shop/barbarji.mp4",
 
-    songs: [],
+    songs: [
+      {
+        id: 1,
+        title: "Song 01",
+        artist: "Unknown",
+        src: "/music/barber-shop/song-01.mp3",
+      },
+      {
+        id: 2,
+        title: "Song 02",
+        artist: "Unknown",
+        src: "/music/barber-shop/song-02.mp3",
+      },
+      {
+        id: 3,
+        title: "Song 03",
+        artist: "Unknown",
+        src: "/music/barber-shop/song-03.mp3",
+      },
+      {
+        id: 4,
+        title: "Song 04",
+        artist: "Unknown",
+        src: "/music/barber-shop/song-04.mp3",
+      },
+      {
+        id: 5,
+        title: "Song 05",
+        artist: "Unknown",
+        src: "/music/barber-shop/song-05.mp3",
+      },
+    ],
   },
+
+
+  // ============================================================
+  // 05 — BAARISH MEIN AUTO
+  // ============================================================
 
   baarishMeinAuto: {
     id: "baarishMeinAuto",
@@ -145,10 +263,46 @@ const stations = {
       "/backgrounds/baarish-mein-auto/placeholder.jpg",
 
     video:
-      "/backgrounds/baarish-mein-auto/placeholder.mp4",
+      "/backgrounds/baarish-mein-auto/autobhai.mp4",
 
-    songs: [],
+    songs: [
+      {
+        id: 1,
+        title: "Song 01",
+        artist: "Unknown",
+        src: "/music/baarish-mein-auto/song-01.mp3",
+      },
+      {
+        id: 2,
+        title: "Song 02",
+        artist: "Unknown",
+        src: "/music/baarish-mein-auto/song-02.mp3",
+      },
+      {
+        id: 3,
+        title: "Song 03",
+        artist: "Unknown",
+        src: "/music/baarish-mein-auto/song-03.mp3",
+      },
+      {
+        id: 4,
+        title: "Song 04",
+        artist: "Unknown",
+        src: "/music/baarish-mein-auto/song-04.mp3",
+      },
+      {
+        id: 5,
+        title: "Song 05",
+        artist: "Unknown",
+        src: "/music/baarish-mein-auto/song-05.mp3",
+      },
+    ],
   },
+
+
+  // ============================================================
+  // 06 — COLLEGE CANTEEN
+  // ============================================================
 
   collegeCanteen: {
     id: "collegeCanteen",
@@ -169,9 +323,101 @@ const stations = {
       "/backgrounds/college-canteen/placeholder.jpg",
 
     video:
-      "/backgrounds/college-canteen/placeholder.mp4",
+      "/backgrounds/college-canteen/college.mp4",
 
-    songs: [],
+    songs: [
+      {
+        id: 1,
+        title: "Song 01",
+        artist: "Unknown",
+        src: "/music/college-canteen/song-01.mp3",
+      },
+      {
+        id: 2,
+        title: "Song 02",
+        artist: "Unknown",
+        src: "/music/college-canteen/song-02.mp3",
+      },
+      {
+        id: 3,
+        title: "Song 03",
+        artist: "Unknown",
+        src: "/music/college-canteen/song-03.mp3",
+      },
+      {
+        id: 4,
+        title: "Song 04",
+        artist: "Unknown",
+        src: "/music/college-canteen/song-04.mp3",
+      },
+      {
+        id: 5,
+        title: "Song 05",
+        artist: "Unknown",
+        src: "/music/college-canteen/song-05.mp3",
+      },
+    ],
+  },
+
+    // ============================================================
+  // 07 — ARE U WINNING, SON?
+  // ============================================================
+
+  areUWinningSon: {
+    id: "areUWinningSon",
+    name: "Are U Winning, Son?",
+
+    shortDescription: "One more time.",
+
+    story: [
+      "It didn't work this time either.",
+      "You stare at the screen for a while.",
+      "Maybe you were close.",
+      "Maybe you weren't.",
+      "You take a breath.",
+      "One last time.",
+    ],
+
+    ending: "You try again.",
+
+    background:
+      "/backgrounds/are-u-winning-son/placeholder.jpg",
+
+    video:
+      "/backgrounds/are-u-winning-son/yesig.mp4",
+
+    songs: [
+      {
+        id: 1,
+        title: "Song 01",
+        artist: "Unknown",
+        src: "/music/are-u-winning-son/song-01.mp3",
+      },
+      {
+        id: 2,
+        title: "Song 02",
+        artist: "Unknown",
+        src: "/music/are-u-winning-son/song-02.mp3",
+      },
+      {
+        id: 3,
+        title: "Song 03",
+        artist: "Unknown",
+        src: "/music/are-u-winning-son/song-03.mp3",
+      },
+      {
+        id: 4,
+        title: "Song 04",
+        artist: "Unknown",
+        src: "/music/are-u-winning-son/song-04.mp3",
+      },
+      {
+        id: 5,
+        title: "Song 05",
+        artist: "Unknown",
+        src: "/music/are-u-winning-son/song-05.mp3",
+      },
+    ],
   },
 };
 
