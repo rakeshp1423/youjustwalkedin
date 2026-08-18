@@ -6,9 +6,15 @@ function RadioPlayer({ station, onLeave }) {
   const audioRef = useRef(null);
   const hideTimer = useRef(null);
 
-  const [currentSong, setCurrentSong] = useState(0);
-  const [volume, setVolume] = useState(0.75);
+  const [currentSong, setCurrentSong] = useState(() => {
+    const songs = station?.songs || [];
 
+    if (!songs.length) return 0;
+
+    return Math.floor(Math.random() * songs.length);
+  });
+
+  const [volume, setVolume] = useState(0.75);
   const [showControls, setShowControls] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -20,9 +26,33 @@ function RadioPlayer({ station, onLeave }) {
   const song = songs[currentSong];
 
   /*
-   * ============================================================
+   * ----------------------------------------------------
+   * RESET SONG WHEN STATION CHANGES
+   * ----------------------------------------------------
+   */
+
+  useEffect(() => {
+    if (!station) return;
+
+    const stationSongs = station.songs || [];
+
+    if (!stationSongs.length) {
+      setCurrentSong(0);
+      return;
+    }
+
+    // Start this scene with a random song.
+    const randomIndex = Math.floor(
+      Math.random() * stationSongs.length
+    );
+
+    setCurrentSong(randomIndex);
+  }, [station]);
+
+  /*
+   * ----------------------------------------------------
    * CONTROL FADE
-   * ============================================================
+   * ----------------------------------------------------
    */
 
   const resetFadeTimer = () => {
@@ -44,9 +74,9 @@ function RadioPlayer({ station, onLeave }) {
   }, []);
 
   /*
-   * ============================================================
-   * LOAD + PLAY SONG
-   * ============================================================
+   * ----------------------------------------------------
+   * AUDIO
+   * ----------------------------------------------------
    */
 
   useEffect(() => {
@@ -57,83 +87,112 @@ function RadioPlayer({ station, onLeave }) {
       return;
     }
 
-    audio.pause();
-
-    audio.currentTime = 0;
-    audio.volume = volume;
-
     setCurrentTime(0);
     setDuration(0);
-    setIsPlaying(false);
 
-    const handleMetadata = () => {
+    audio.volume = volume;
+    audio.load();
+
+    const playAudio = async () => {
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch (error) {
+        console.warn(
+          "RadioPlayer: browser blocked autoplay.",
+          error
+        );
+
+        setIsPlaying(false);
+      }
+    };
+
+    playAudio();
+
+    return () => {
+      audio.pause();
+    };
+  }, [song]);
+
+  /*
+   * ----------------------------------------------------
+   * AUDIO PROGRESS
+   * ----------------------------------------------------
+   */
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio) return;
+
+    const updateProgress = () => {
+      setCurrentTime(audio.currentTime || 0);
+    };
+
+    const updateDuration = () => {
       if (Number.isFinite(audio.duration)) {
         setDuration(audio.duration);
       }
     };
 
-    const handleCanPlay = async () => {
-      try {
-        await audio.play();
-        setIsPlaying(true);
-      } catch (error) {
-        /*
-         * Browsers may block autoplay until the user interacts
-         * with the page. This is normal browser behaviour.
-         */
-        console.warn("Autoplay was blocked:", error);
-        setIsPlaying(false);
+    const handleLoadedMetadata = () => {
+      if (Number.isFinite(audio.duration)) {
+        setDuration(audio.duration);
       }
     };
 
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime || 0);
-    };
+    audio.addEventListener(
+      "timeupdate",
+      updateProgress
+    );
 
-    const handleEnded = () => {
-      if (!songs.length) return;
+    audio.addEventListener(
+      "loadedmetadata",
+      handleLoadedMetadata
+    );
 
-      setCurrentSong((current) => {
-        if (current >= songs.length - 1) {
-          return 0;
-        }
-
-        return current + 1;
-      });
-    };
-
-    const handleError = () => {
-      console.error(
-        `RadioPlayer: failed to load "${song.src}"`
-      );
-
-      setIsPlaying(false);
-    };
-
-    audio.addEventListener("loadedmetadata", handleMetadata);
-    audio.addEventListener("canplay", handleCanPlay);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("ended", handleEnded);
-    audio.addEventListener("error", handleError);
-
-    /*
-     * Force the browser to load the new source.
-     */
-    audio.load();
+    audio.addEventListener(
+      "durationchange",
+      updateDuration
+    );
 
     return () => {
-      audio.removeEventListener("loadedmetadata", handleMetadata);
-      audio.removeEventListener("canplay", handleCanPlay);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("error", handleError);
+      audio.removeEventListener(
+        "timeupdate",
+        updateProgress
+      );
+
+      audio.removeEventListener(
+        "loadedmetadata",
+        handleLoadedMetadata
+      );
+
+      audio.removeEventListener(
+        "durationchange",
+        updateDuration
+      );
     };
-  }, [song, songs.length]);
+  }, [song]);
 
   /*
-   * ============================================================
+   * ----------------------------------------------------
+   * AUDIO ERROR
+   * ----------------------------------------------------
+   */
+
+  const handleAudioError = () => {
+    console.error(
+      "RadioPlayer: unable to load audio:",
+      song?.src
+    );
+
+    setIsPlaying(false);
+  };
+
+  /*
+   * ----------------------------------------------------
    * VOLUME
-   * ============================================================
+   * ----------------------------------------------------
    */
 
   useEffect(() => {
@@ -143,14 +202,16 @@ function RadioPlayer({ station, onLeave }) {
   }, [volume]);
 
   /*
-   * ============================================================
+   * ----------------------------------------------------
    * FULLSCREEN STATE
-   * ============================================================
+   * ----------------------------------------------------
    */
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
+      setIsFullscreen(
+        Boolean(document.fullscreenElement)
+      );
     };
 
     document.addEventListener(
@@ -167,9 +228,9 @@ function RadioPlayer({ station, onLeave }) {
   }, []);
 
   /*
-   * ============================================================
+   * ----------------------------------------------------
    * FULLSCREEN
-   * ============================================================
+   * ----------------------------------------------------
    */
 
   const toggleFullscreen = async () => {
@@ -182,57 +243,144 @@ function RadioPlayer({ station, onLeave }) {
         await document.exitFullscreen();
       }
     } catch (error) {
-      console.error("Fullscreen error:", error);
+      console.error(
+        "Fullscreen error:",
+        error
+      );
     }
   };
 
   /*
-   * ============================================================
-   * VOLUME
-   * ============================================================
+   * ----------------------------------------------------
+   * RANDOM SONG
+   * ----------------------------------------------------
    */
 
-  const handleVolume = (event) => {
-    const newVolume = Number(event.target.value);
+  const getRandomSongIndex = () => {
+    if (songs.length <= 1) {
+      return 0;
+    }
 
-    setVolume(newVolume);
+    let randomIndex;
+
+    do {
+      randomIndex = Math.floor(
+        Math.random() * songs.length
+      );
+    } while (randomIndex === currentSong);
+
+    return randomIndex;
+  };
+
+  /*
+   * ----------------------------------------------------
+   * NEXT SONG
+   * ----------------------------------------------------
+   */
+
+  const nextSong = () => {
+    if (!songs.length) return;
+
+    const nextIndex = getRandomSongIndex();
+
+    setCurrentSong(nextIndex);
+
     resetFadeTimer();
   };
 
   /*
-   * ============================================================
+   * ----------------------------------------------------
+   * PREVIOUS SONG
+   * ----------------------------------------------------
+   */
+
+  const previousSong = () => {
+    if (!songs.length) return;
+
+    const previousIndex = getRandomSongIndex();
+
+    setCurrentSong(previousIndex);
+
+    resetFadeTimer();
+  };
+
+  /*
+   * ----------------------------------------------------
+   * PLAY / PAUSE
+   * ----------------------------------------------------
+   */
+
+  const togglePlay = async () => {
+    const audio = audioRef.current;
+
+    if (!audio) return;
+
+    try {
+      if (audio.paused) {
+        await audio.play();
+        setIsPlaying(true);
+      } else {
+        audio.pause();
+        setIsPlaying(false);
+      }
+    } catch (error) {
+      console.error(
+        "RadioPlayer: playback error:",
+        error
+      );
+
+      setIsPlaying(false);
+    }
+
+    resetFadeTimer();
+  };
+
+  /*
+   * ----------------------------------------------------
+   * VOLUME
+   * ----------------------------------------------------
+   */
+
+  const handleVolume = (event) => {
+    const newVolume = Number(
+      event.target.value
+    );
+
+    setVolume(newVolume);
+
+    resetFadeTimer();
+  };
+
+  /*
+   * ----------------------------------------------------
    * PROGRESS SEEK
-   * ============================================================
+   * ----------------------------------------------------
    */
 
   const handleProgressClick = (event) => {
     const audio = audioRef.current;
 
-    if (!audio || !Number.isFinite(audio.duration)) {
-      return;
-    }
+    if (!audio || !duration) return;
 
     const rect =
       event.currentTarget.getBoundingClientRect();
 
     const clickPosition =
-      (event.clientX - rect.left) / rect.width;
+      (event.clientX - rect.left) /
+      rect.width;
 
     const newTime =
-      Math.max(0, Math.min(clickPosition, 1)) *
-      audio.duration;
+      clickPosition * duration;
 
     audio.currentTime = newTime;
 
     setCurrentTime(newTime);
-
-    resetFadeTimer();
   };
 
   /*
-   * ============================================================
+   * ----------------------------------------------------
    * TIME FORMAT
-   * ============================================================
+   * ----------------------------------------------------
    */
 
   const formatTime = (time) => {
@@ -241,22 +389,46 @@ function RadioPlayer({ station, onLeave }) {
     }
 
     const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
 
-    return `${String(minutes).padStart(2, "0")}:${String(
-      seconds
-    ).padStart(2, "0")}`;
+    const seconds = Math.floor(
+      time % 60
+    );
+
+    return `${String(minutes).padStart(
+      2,
+      "0"
+    )}:${String(seconds).padStart(
+      2,
+      "0"
+    )}`;
   };
 
   /*
-   * ============================================================
-   * KEYBOARD
-   * ============================================================
+   * ----------------------------------------------------
+   * KEYBOARD CONTROLS
+   * ----------------------------------------------------
    */
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       resetFadeTimer();
+
+      if (
+        event.code === "Space" &&
+        event.target.tagName !== "INPUT"
+      ) {
+        event.preventDefault();
+
+        togglePlay();
+      }
+
+      if (event.code === "ArrowRight") {
+        nextSong();
+      }
+
+      if (event.code === "ArrowLeft") {
+        previousSong();
+      }
 
       if (event.code === "KeyF") {
         toggleFullscreen();
@@ -269,34 +441,43 @@ function RadioPlayer({ station, onLeave }) {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
     };
-  }, []);
+  }, [currentSong, songs.length]);
 
   /*
-   * ============================================================
+   * ----------------------------------------------------
    * PROGRESS
-   * ============================================================
+   * ----------------------------------------------------
    */
 
   const progress =
     duration > 0
-      ? Math.min((currentTime / duration) * 100, 100)
+      ? Math.min(
+          (currentTime / duration) * 100,
+          100
+        )
       : 0;
 
   /*
-   * ============================================================
+   * ----------------------------------------------------
    * PLAYER
-   * ============================================================
+   * ----------------------------------------------------
    */
 
   return (
     <motion.main
       ref={playerRef}
-      className="fixed inset-0 z-[100] h-[100dvh] w-full overflow-hidden bg-black text-[#f5f1e8]"
+      className="fixed inset-0 z-[100] overflow-hidden bg-black text-[#f5f1e8]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{
@@ -307,9 +488,10 @@ function RadioPlayer({ station, onLeave }) {
       onTouchStart={resetFadeTimer}
       onTouchMove={resetFadeTimer}
     >
-      {/* ====================================================== */}
+
+      {/* ------------------------------------------------ */}
       {/* BACKGROUND IMAGE */}
-      {/* ====================================================== */}
+      {/* ------------------------------------------------ */}
 
       <img
         src={station.background}
@@ -317,9 +499,9 @@ function RadioPlayer({ station, onLeave }) {
         className="absolute inset-0 z-0 h-full w-full object-cover"
       />
 
-      {/* ====================================================== */}
+      {/* ------------------------------------------------ */}
       {/* BACKGROUND VIDEO */}
-      {/* ====================================================== */}
+      {/* ------------------------------------------------ */}
 
       {station.video && (
         <video
@@ -329,127 +511,135 @@ function RadioPlayer({ station, onLeave }) {
           muted
           loop
           playsInline
-          preload="auto"
         />
       )}
 
-      {/* ====================================================== */}
+      {/* ------------------------------------------------ */}
       {/* ATMOSPHERE */}
-      {/* ====================================================== */}
+      {/* ------------------------------------------------ */}
 
       <div className="absolute inset-0 z-[2] bg-black/25" />
 
-      <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/90 via-black/10 to-black/35" />
+      <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/85 via-black/10 to-black/35" />
 
-      {/* ====================================================== */}
+      {/* ------------------------------------------------ */}
       {/* AUDIO */}
-      {/* ====================================================== */}
+      {/* ------------------------------------------------ */}
 
       {song && (
         <audio
           ref={audioRef}
           src={song.src}
           preload="auto"
+          onEnded={nextSong}
+          onError={handleAudioError}
         />
       )}
 
-      {/* ====================================================== */}
+      {/* ================================================= */}
       {/* PERMANENT SONG PROGRESS */}
-      {/* ====================================================== */}
+      {/* ================================================= */}
 
       <div
-        className="absolute bottom-5 left-1/2 z-30 w-[min(420px,calc(100vw-48px))] -translate-x-1/2"
-        onMouseMove={(event) => event.stopPropagation()}
-        onTouchMove={(event) => event.stopPropagation()}
+        className="absolute bottom-5 left-1/2 z-20 w-[min(420px,70vw)] -translate-x-1/2"
+        onMouseMove={(event) =>
+          event.stopPropagation()
+        }
       >
-        <div className="mb-2 flex justify-between px-1 text-[8px] tracking-[0.18em] text-white/40">
-          <span>{formatTime(currentTime)}</span>
 
-          <span>{formatTime(duration)}</span>
+        {/* Time */}
+
+        <div className="mb-2 flex justify-between px-1 text-[8px] tracking-[0.18em] text-white/35">
+          <span>
+            {formatTime(currentTime)}
+          </span>
+
+          <span>
+            {formatTime(duration)}
+          </span>
         </div>
+
+        {/* Progress track */}
 
         <button
           type="button"
           onClick={handleProgressClick}
           aria-label="Seek through song"
-          className="group relative block h-4 w-full cursor-pointer"
+          className="group relative block h-3 w-full cursor-pointer"
         >
-          {/* Track */}
 
           <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-white/20" />
 
-          {/* Played */}
-
           <span
-            className="absolute left-0 top-1/2 h-px -translate-y-1/2 bg-white/80"
+            className="absolute left-0 top-1/2 h-px -translate-y-1/2 bg-white/75 transition-[width] duration-100"
             style={{
               width: `${progress}%`,
             }}
           />
 
-          {/* Position */}
-
           <span
-            className="absolute top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"
+            className="absolute top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white opacity-90"
             style={{
               left: `${progress}%`,
             }}
           />
+
         </button>
       </div>
 
-      {/* ====================================================== */}
+      {/* ================================================= */}
       {/* FADING CONTROLS */}
-      {/* ====================================================== */}
+      {/* ================================================= */}
 
       <AnimatePresence>
         {showControls && (
           <motion.div
-            className="absolute inset-0 z-20"
+            className="absolute inset-0 z-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{
               duration: 0.45,
-              ease: "easeOut",
             }}
           >
-            {/* ================================================= */}
+
+            {/* ------------------------------------------ */}
             {/* LEAVE */}
-            {/* ================================================= */}
+            {/* ------------------------------------------ */}
 
             <button
               type="button"
               onClick={onLeave}
-              className="absolute left-5 top-5 text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:text-white sm:left-8 sm:top-7 md:left-10 md:top-8"
+              className="absolute left-6 top-6 text-[10px] uppercase tracking-[0.3em] text-white/65 transition hover:text-white md:left-10 md:top-8"
             >
               ← Leave
             </button>
 
-            {/* ================================================= */}
+            {/* ------------------------------------------ */}
             {/* FULLSCREEN */}
-            {/* ================================================= */}
+            {/* ------------------------------------------ */}
 
             <button
               type="button"
               onClick={toggleFullscreen}
-              className="absolute right-5 top-5 text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:text-white sm:right-8 sm:top-7 md:right-10 md:top-8"
+              className="absolute right-6 top-6 text-[10px] uppercase tracking-[0.3em] text-white/65 transition hover:text-white md:right-10 md:top-8"
             >
               {isFullscreen
                 ? "Exit full screen"
                 : "Full screen"}
             </button>
 
-            {/* ================================================= */}
+            {/* ------------------------------------------ */}
             {/* SONG INFORMATION */}
-            {/* ================================================= */}
+            {/* ------------------------------------------ */}
 
-            <div className="absolute bottom-16 left-5 max-w-[70vw] sm:left-8 md:bottom-14 md:left-10">
-              <p className="mb-3 text-[8px] uppercase tracking-[0.35em] text-white/50 sm:text-[9px]">
+            <div className="absolute bottom-12 left-6 max-w-[70vw] md:bottom-12 md:left-10">
+
+              <p className="mb-3 text-[9px] uppercase tracking-[0.35em] text-white/45">
                 {station.name}
               </p>
 
-              <h1 className="text-xl font-normal leading-tight tracking-[-0.02em] sm:text-2xl md:text-4xl">
+              <h1 className="text-2xl font-normal tracking-[-0.02em] md:text-4xl">
                 {song?.title ||
                   "The radio is playing."}
               </h1>
@@ -459,31 +649,70 @@ function RadioPlayer({ station, onLeave }) {
                   {song.artist}
                 </p>
               )}
+
             </div>
 
-            {/* ================================================= */}
-            {/* VOLUME */}
-            {/* ================================================= */}
+            {/* ------------------------------------------ */}
+            {/* PLAYER CONTROLS */}
+            {/* ------------------------------------------ */}
 
-            <div className="absolute bottom-16 right-5 flex items-center gap-2 sm:right-8 md:bottom-14 md:right-10">
-              <span className="hidden text-[8px] uppercase tracking-[0.2em] text-white/35 sm:block">
-                Vol
-              </span>
+            <div className="absolute bottom-12 right-6 flex items-center gap-4 md:right-10 md:gap-6">
 
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={volume}
-                onChange={handleVolume}
-                aria-label="Volume"
-                className="h-1 w-16 cursor-pointer accent-white sm:w-20 md:w-24"
-              />
+              <button
+                type="button"
+                onClick={previousSong}
+                aria-label="Previous song"
+                className="text-sm text-white/45 transition hover:text-white"
+              >
+                ←
+              </button>
+
+              <button
+                type="button"
+                onClick={togglePlay}
+                className="min-w-[50px] text-[9px] uppercase tracking-[0.25em] text-white/65 transition hover:text-white"
+              >
+                {isPlaying
+                  ? "Pause"
+                  : "Play"}
+              </button>
+
+              <button
+                type="button"
+                onClick={nextSong}
+                aria-label="Next song"
+                className="text-sm text-white/45 transition hover:text-white"
+              >
+                →
+              </button>
+
+              {/* Volume */}
+
+              <div className="ml-2 flex items-center gap-2">
+
+                <span className="hidden text-[8px] uppercase tracking-[0.2em] text-white/30 sm:block">
+                  Vol
+                </span>
+
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={volume}
+                  onChange={handleVolume}
+                  aria-label="Volume"
+                  className="w-16 accent-white sm:w-20"
+                />
+
+              </div>
+
             </div>
+
           </motion.div>
         )}
       </AnimatePresence>
+
     </motion.main>
   );
 }

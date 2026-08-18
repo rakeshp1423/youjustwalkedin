@@ -1,12 +1,66 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+
+import { supabase } from "../lib/supabase";
 
 function Home({ stations, onEnterStation, onSurpriseMe }) {
   const [sceneRequest, setSceneRequest] = useState("");
   const [spotifyLink, setSpotifyLink] = useState("");
   const [message, setMessage] = useState("");
+  const [visitorCount, setVisitorCount] = useState(null);
 
   const stationList = Object.values(stations || {});
+
+  // ============================================================
+  // VISITOR COUNT
+  // ============================================================
+
+  useEffect(() => {
+    const registerVisit = async () => {
+      try {
+        const sessionKey = "you-just-walked-in-visit";
+
+        // Only count one visit per browser session.
+        const alreadyCounted = sessionStorage.getItem(sessionKey);
+
+        if (alreadyCounted) {
+          const { data, error } = await supabase
+            .from("site_stats")
+            .select("visit_count")
+            .eq("id", 1)
+            .single();
+
+          if (!error && data) {
+            setVisitorCount(data.visit_count);
+          }
+
+          return;
+        }
+
+        // Increment the visitor count.
+        const { data, error } = await supabase.rpc(
+          "increment_visit_count"
+        );
+
+        if (error) {
+          console.error("Visitor count error:", error);
+          return;
+        }
+
+        sessionStorage.setItem(sessionKey, "true");
+
+        setVisitorCount(data);
+      } catch (error) {
+        console.error("Failed to register visit:", error);
+      }
+    };
+
+    registerVisit();
+  }, []);
+
+  // ============================================================
+  // SCENE REQUEST
+  // ============================================================
 
   const handleRequestSubmit = (event) => {
     event.preventDefault();
@@ -20,6 +74,10 @@ function Home({ stations, onEnterStation, onSurpriseMe }) {
       setMessage("");
     }, 3000);
   };
+
+  // ============================================================
+  // SPOTIFY REQUEST
+  // ============================================================
 
   const handleSpotifySubmit = (event) => {
     event.preventDefault();
@@ -224,7 +282,7 @@ function Home({ stations, onEnterStation, onSurpriseMe }) {
         {/* SURPRISE ME */}
         {/* ================================================= */}
 
-        <div className="flex justify-between border-b border-white/[0.11] py-8">
+        <div className="flex flex-col gap-5 border-b border-white/[0.11] py-8 sm:flex-row sm:items-center sm:justify-between">
 
           <p className="text-[8px] uppercase tracking-[0.3em] text-white/15">
             Don't know where to go?
@@ -233,7 +291,7 @@ function Home({ stations, onEnterStation, onSurpriseMe }) {
           <button
             type="button"
             onClick={onSurpriseMe}
-            className="group flex items-center gap-3 text-[9px] uppercase tracking-[0.32em] text-white/40 transition-colors duration-300 hover:text-white"
+            className="group flex items-center gap-3 self-start text-[9px] uppercase tracking-[0.32em] text-white/40 transition-colors duration-300 hover:text-white sm:self-auto"
           >
 
             <span>
@@ -247,6 +305,44 @@ function Home({ stations, onEnterStation, onSurpriseMe }) {
           </button>
 
         </div>
+
+      </section>
+
+
+      {/* ================================================= */}
+      {/* VISITOR COUNT */}
+      {/* ================================================= */}
+
+      <section className="mx-auto w-full max-w-[1440px] px-6 py-16 md:px-10 lg:px-12 lg:py-20">
+
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 15,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.3,
+          }}
+          transition={{
+            duration: 0.8,
+          }}
+          className="flex justify-center"
+        >
+
+          <p className="text-center text-[8px] uppercase tracking-[0.32em] text-white/20 sm:text-[9px]">
+
+            {visitorCount !== null
+              ? `${visitorCount.toLocaleString()} people walked in before you.`
+              : "People have walked in before you."}
+
+          </p>
+
+        </motion.div>
 
       </section>
 
