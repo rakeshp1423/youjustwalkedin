@@ -309,43 +309,79 @@ function Home({ stations, onEnterStation, onSurpriseMe }) {
       </section>
 
 
-      {/* ================================================= */}
-      {/* VISITOR COUNT */}
-      {/* ================================================= */}
+      {/* ------------------------------------------------ */}
+{/* PEOPLE WALKED IN BEFORE YOU */}
+{/* ------------------------------------------------ */}
 
-      <section className="mx-auto w-full max-w-[1440px] px-6 py-16 md:px-10 lg:px-12 lg:py-20">
+<section className="mx-auto w-full max-w-[1440px] px-6 md:px-10 lg:px-12">
 
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 15,
-          }}
-          whileInView={{
-            opacity: 1,
-            y: 0,
-          }}
-          viewport={{
-            once: true,
-            amount: 0.3,
-          }}
-          transition={{
-            duration: 0.8,
-          }}
-          className="flex justify-center"
-        >
+  <div className="border-t border-white/[0.12]">
 
-          <p className="text-center text-[8px] uppercase tracking-[0.32em] text-white/20 sm:text-[9px]">
+    <div className="grid min-h-[520px] grid-cols-1 lg:grid-cols-[0.8fr_1.2fr]">
 
-            {visitorCount !== null
-              ? `${visitorCount.toLocaleString()} people walked in before you.`
-              : "People have walked in before you."}
+      {/* Label */}
 
+      <div className="flex items-start border-b border-white/[0.12] py-8 lg:border-b-0 lg:border-r lg:py-10">
+
+        <p className="text-[9px] uppercase tracking-[0.4em] text-white/30">
+          People walked in before you
+        </p>
+
+      </div>
+
+
+      {/* Main content */}
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.25 }}
+        transition={{
+          duration: 1,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+        className="flex flex-col justify-center py-20 lg:px-16 lg:py-24"
+      >
+
+        <p className="text-[clamp(5rem,12vw,11rem)] font-normal leading-[0.8] tracking-[-0.07em] text-white">
+  {visitorCount === null
+    ? "—"
+    : visitorCount.toLocaleString()}
+</p>
+
+        <div className="mt-10 max-w-xl">
+
+          <h2 className="text-3xl font-normal leading-[1] tracking-[-0.035em] md:text-5xl">
+            people have already
+            <br />
+            walked in.
+          </h2>
+
+          <p className="mt-7 max-w-md text-sm leading-7 text-white/40">
+            They came looking for somewhere to go.
+            Maybe they stayed for a song. Maybe they
+            found a memory they didn't know they had.
           </p>
 
-        </motion.div>
+        </div>
 
-      </section>
+        <div className="mt-14 flex items-center gap-4">
 
+          <span className="h-px w-12 bg-white/20" />
+
+          <p className="text-[9px] uppercase tracking-[0.35em] text-white/25">
+            Somewhere, someone is already listening.
+          </p>
+
+        </div>
+
+      </motion.div>
+
+    </div>
+
+  </div>
+
+</section>
 
       {/* ================================================= */}
       {/* CONTRIBUTION */}
