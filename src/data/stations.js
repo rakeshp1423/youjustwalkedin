@@ -58,7 +58,6 @@ const stations = {
     ],
   },
 
-
   // ============================================================
   // 02 — MOHALLE KI CHAI
   // ============================================================
@@ -118,7 +117,6 @@ const stations = {
     ],
   },
 
-
   // ============================================================
   // 03 — RAILWAY PLATFORM
   // ============================================================
@@ -177,7 +175,6 @@ const stations = {
       },
     ],
   },
-
 
   // ============================================================
   // 04 — BARBER SHOP
@@ -239,7 +236,6 @@ const stations = {
     ],
   },
 
-
   // ============================================================
   // 05 — BAARISH MEIN AUTO
   // ============================================================
@@ -298,7 +294,6 @@ const stations = {
       },
     ],
   },
-
 
   // ============================================================
   // 06 — COLLEGE CANTEEN
@@ -359,7 +354,7 @@ const stations = {
     ],
   },
 
-    // ============================================================
+  // ============================================================
   // 07 — ARE U WINNING, SON?
   // ============================================================
 
@@ -416,6 +411,126 @@ const stations = {
         title: "Song 05",
         artist: "Unknown",
         src: "/music/are-u-winning-son/song-05.mp3",
+      },
+    ],
+  },
+
+  // ============================================================
+  // 08 — SHAAM-E-ISHQ
+  // ============================================================
+
+  shaamEIshq: {
+    id: "shaamEIshq",
+    name: "Shaam-e-Ishq",
+
+    shortDescription: "Some evenings are meant for love.",
+
+    story: [
+      "The sun is almost gone.",
+      "The city has started to slow down.",
+      "Someone is playing an old love song.",
+      "You think about someone you shouldn't.",
+    ],
+
+    ending: "You stayed until the song was over.",
+
+    background:
+      "/backgrounds/Shaam-e-Ishq/placeholder.jpg",
+
+    video:
+      "/backgrounds/Shaam-e-Ishq/shaam-e-ishq.mp4",
+
+    songs: [
+      {
+        id: 1,
+        title: "Song 01",
+        artist: "Unknown",
+        src: "/music/Shaam-e-Ishq/song-01.mp3",
+      },
+      {
+        id: 2,
+        title: "Song 02",
+        artist: "Unknown",
+        src: "/music/Shaam-e-Ishq/song-02.mp3",
+      },
+      {
+        id: 3,
+        title: "Song 03",
+        artist: "Unknown",
+        src: "/music/Shaam-e-Ishq/song-03.mp3",
+      },
+      {
+        id: 4,
+        title: "Song 04",
+        artist: "Unknown",
+        src: "/music/Shaam-e-Ishq/song-04.mp3",
+      },
+      {
+        id: 5,
+        title: "Song 05",
+        artist: "Unknown",
+        src: "/music/Shaam-e-Ishq/song-05.mp3",
+      },
+    ],
+  },
+
+    // ============================================================
+  // 08 — THUMKA RADIO
+  // ============================================================
+
+  thumkaRadio: {
+    id: "thumkaRadio",
+    name: "Thumka Radio",
+
+    shortDescription: "Old songs. Full volume. No explanation.",
+
+    story: [
+      "The radio is already playing.",
+      "Someone knows every word.",
+      "The chai has gone cold.",
+      "Nobody is sitting still anymore.",
+      "The song changes.",
+      "The mood doesn't.",
+    ],
+
+    ending: "You stayed for one more song.",
+
+    background:
+      "/backgrounds/thumka-radio/placeholder.jpg",
+
+    video:
+      "/backgrounds/thumka-radio/thumka3.mp4",
+
+    songs: [
+      {
+        id: 1,
+        title: "Song 01",
+        artist: "Unknown",
+        src: "/music/thumka-radio/song-01.mp3",
+      },
+      {
+        id: 2,
+        title: "Song 02",
+        artist: "Unknown",
+        src: "/music/thumka-radio/song-02.mp3",
+      },
+      {
+        id: 3,
+        title: "Song 03",
+        artist: "Unknown",
+        src: "/music/thumka-radio/song-03.mp3",
+      },
+      {
+        id: 4,
+        title: "Song 04",
+        artist: "Unknown",
+        src: "/music/thumka-radio/song-04.mp3",
+      },
+      {
+        id: 5,
+        title: "Song 05",
+        artist: "Unknown",
+        src: "/music/thumka-radio/song-05.mp3",
       },
     ],
   },
